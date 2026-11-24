@@ -1,0 +1,20 @@
+# Страховка на уровне личного репозитория.
+# У каждого Flutter-проекта есть и собственный .gitignore (его создаёт flutter create).
+
+# Сборка и кэши Flutter / Dart
+build/
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+
+# Локальные пути и настройки Android (содержат пути конкретной машины)
+local.properties
+.gradle/
+
+# IDE и системные файлы
+.idea/
+*.iml
+.vscode/
+.DS_Store
+*.swp
