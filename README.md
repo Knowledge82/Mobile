@@ -533,7 +533,7 @@ adb devices
 
 | Что | Где | Размер | Как справляемся |
 |---|---|---|---|
-| Сборка проекта | `<проект>/build/` | сотни МБ **на каждый проект** | `flutter clean` по окончании упражнения |
+| Сборка проекта | `<проект>/build/` | **около 1 ГБ на проект** (замер 26.11.2026: после `flutter clean` в ex00 и ex01 `~/Projects` ужался с 2.5 ГБ до 0.2 ГБ) | `flutter clean` по окончании упражнения |
 | Анализатор и кэш проекта | `<проект>/.dart_tool/` | десятки-сотни МБ | `flutter clean` |
 | Кэш pub | `~/goinfre/.pub-cache` | сотни МБ | Уже вне home |
 | Кэш Gradle | `~/goinfre/.gradle` | 1–2 ГБ | Уже вне home |
@@ -553,9 +553,12 @@ df -h ~ | tail -1
 find ~/Projects -type d \( -name build -o -name .dart_tool \) -prune -exec du -sh {} + | sort -h
 ```
 
+**Реальный случай (26.11.2026).** При `flutter run` на ex00 сборка прошла, приложение установилось, а затем упала отладочная сессия: `FileSystemException: writeFrom failed ... No space left on device, errno = 28` (Flutter копирует временный `app.dill` в `build/` проекта, а проект лежит в home). `df -h` показал `/dev/sdb 4.7G 4.7G 45M 100% /home/<login>`, при этом в `/goinfre` было свободно 188 ГБ. Скрипт тут ни при чём: `GRADLE_USER_HOME`, `PUB_CACHE` и Android SDK были вне home. Съели home каталоги `build/` проектов. `flutter clean` в ex00 и ex01 вернул 2.3 ГБ (50% свободно).
+Две соседние безобидные строки того же лога: `INSTALL_FAILED_UPDATE_INCOMPATIBLE ... signatures do not match` означает, что на телефоне стояла сборка с другим debug-ключом (из другого дома/машины); Flutter сам удаляет старую и ставит новую (`Uninstalling old version...`), данные приложения теряются, больше ничего. Остальное (`Impeller`, `Width is zero`) это обычные сообщения запуска.
+
 Правила гигиены:
 
-1. Закончили упражнение, сделали `flutter clean`.
+1. Закончили упражнение, сделали `flutter clean`. Держите в home не больше одного-двух собранных Flutter-проектов одновременно.
 2. Не копируем проекты «про запас».
 3. После установки окружения один раз проверяем `du` (см. камень про Android CLI в [3.6](#36-подводные-камни)).
 
