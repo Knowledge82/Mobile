@@ -782,13 +782,27 @@ flutter --version
 | Модуль | Папка сдачи | Упражнения (что сдавать) | Статус | Разборы |
 |---|---|---|---|---|
 | 00 | `mobileModule00` | `ex00`, `ex01`, `ex02`, `calculator_app` | ex00 и ex01 в репозитории, ex02 в работе | [ex00](docs/00-ex00.md), [ex01](docs/00-ex01.md), [ex02](docs/00-ex02.md), [ex03](docs/00-ex03.md) |
-| 01 | `mobileModule01` | `weather_app` | не начат | |
+| 01 | `mobileModule01` | `weather_app` (один проект на ex00 и ex01) | код и разборы подготовлены заранее, **не запускались**: нужен первый прогон | [ex00](docs/01-ex00.md), [ex01](docs/01-ex01.md) |
 | 02 | `mobileModule02` | `medium_weather_app` | не начат | |
 | 03 | `mobileModule03` | `advanced_weather_app` | не начат | |
 | 04 | `mobileModule04` | `diary_app` | не начат | |
 | 05 | `mobileModule05` | `advanced_diary_app` | не начат | |
 
-Имена папок сдачи и проектов для модулей 01–05 взяты **из сабжей** (подробности ниже, в разделе «Модули 01–05»). Для упражнений модулей 01–05 файлы разборов (`docs/NN-exMM.md`) создаются, когда мы начинаем модуль.
+Имена папок сдачи и проектов для модулей 01–05 взяты **из сабжей** (подробности ниже, в разделе «Модули 01–05»). Для упражнений модулей 02–05 файлы разборов (`docs/NN-exMM.md`) создаются, когда мы начинаем модуль. Для модуля 01 разборы и код подготовлены заранее (см. ниже).
+
+**Модуль 01: что подготовлено и как этим пользоваться.** В репозитории лежат готовый проект `mobileModule01/weather_app` (код `lib/`, тесты, `pubspec.yaml`, `analysis_options.yaml`), разборы по слоям [01-ex00](docs/01-ex00.md) (нижняя панель вкладок) и [01-ex01](docs/01-ex01.md) (поле поиска и кнопка геолокации) и снимок кода этапа ex00 в [docs/code/01-ex00_main.dart](docs/code/01-ex00_main.dart). Всё написано **без запуска** (в среде подготовки нет Flutter), поэтому первый шаг: достроить платформы и прогнать проверки.
+
+```bash
+cd ~/Projects/Mobile/mobileModule01/weather_app
+flutter create --platforms=android,web --project-name weather_app .   # не затирает существующие файлы
+git status                      # lib/, test/, pubspec.yaml, analysis_options.yaml, README.md не должны быть изменены
+flutter pub get && flutter analyze && flutter test
+git add -A && git commit -m "weather_app: platforms"                  # android/ и web/ должны быть в git, иначе при выгрузке не попадут
+# выгрузка (ожидаемая папка одна):
+cd ~/Projects/Mobile && EXPECTED="weather_app" CHECK=1 tools/export_module.sh 01 ~/Projects/campus-mobile-01
+```
+
+Хотите пройти модуль сами, слоями: создайте проект заново (`flutter create --platforms=android,web weather_app`, `flutter pub add material_ui`) и набирайте слои из разборов, а готовые файлы используйте как эталон. Если `flutter analyze` или `flutter test` покажет ошибки, пришлите вывод: в разборах есть раздел «Диагностика», и туда добавится найденное.
 
 **Карточки модулей 01–05 на Intra (снимок от 25.11.2026).** Во всех пяти: одиночный проект (Solo), оценка «около 7 часов», максимальная длительность 1 день, 2 дня на проверку после завершения. Навыки: Object-oriented programming, Adaptation & creativity, Technology integration. Каждый модуль открывается только после **валидации предыдущего** (цепочка 0 → 1 → 2 → 3 → 4 → 5).
 
