@@ -74,7 +74,8 @@ Mobile/                          ← личный репозиторий (GitHub
 ├── setup_flutter_campus.sh             ← установщик окружения
 ├── .gitignore
 ├── tools/
-│   └── export_module.sh         ← выгрузка модуля в репозиторий кампуса
+│   ├── export_module.sh         ← выгрузка модуля в репозиторий кампуса
+│   └── patch_android_manifest.sh ← разрешения INTERNET и геолокации в AndroidManifest.xml
 ├── docs/                        ← конспекты по упражнениям
 │   ├── index.md
 │   ├── _template.md
@@ -783,12 +784,12 @@ flutter --version
 |---|---|---|---|---|
 | 00 | `mobileModule00` | `ex00`, `ex01`, `ex02`, `calculator_app` | ex00 и ex01 в репозитории, ex02 в работе | [ex00](docs/00-ex00.md), [ex01](docs/00-ex01.md), [ex02](docs/00-ex02.md), [ex03](docs/00-ex03.md) |
 | 01 | `mobileModule01` | `weather_app` (один проект на ex00 и ex01) | код и разборы подготовлены заранее, **не запускались**: нужен первый прогон | [ex00](docs/01-ex00.md), [ex01](docs/01-ex01.md) |
-| 02 | `mobileModule02` | `medium_weather_app` | не начат | |
+| 02 | `mobileModule02` | `medium_weather_app` (один проект на ex00–ex03) | код и разборы подготовлены заранее, **не запускались**: нужен первый прогон | [ex00](docs/02-ex00.md), [ex01](docs/02-ex01.md), [ex02](docs/02-ex02.md), [ex03](docs/02-ex03.md) |
 | 03 | `mobileModule03` | `advanced_weather_app` | не начат | |
 | 04 | `mobileModule04` | `diary_app` | не начат | |
 | 05 | `mobileModule05` | `advanced_diary_app` | не начат | |
 
-Имена папок сдачи и проектов для модулей 01–05 взяты **из сабжей** (подробности ниже, в разделе «Модули 01–05»). Для упражнений модулей 02–05 файлы разборов (`docs/NN-exMM.md`) создаются, когда мы начинаем модуль. Для модуля 01 разборы и код подготовлены заранее (см. ниже).
+Имена папок сдачи и проектов для модулей 01–05 взяты **из сабжей** (подробности ниже, в разделе «Модули 01–05»). Для упражнений модулей 03–05 файлы разборов (`docs/NN-exMM.md`) создаются, когда мы начинаем модуль. Для модулей 01 и 02 разборы и код подготовлены заранее (см. ниже).
 
 **Модуль 01: что подготовлено и как этим пользоваться.** В репозитории лежат готовый проект `mobileModule01/weather_app` (код `lib/`, тесты, `pubspec.yaml`, `analysis_options.yaml`), разборы по слоям [01-ex00](docs/01-ex00.md) (нижняя панель вкладок) и [01-ex01](docs/01-ex01.md) (поле поиска и кнопка геолокации) и снимок кода этапа ex00 в [docs/code/01-ex00_main.dart](docs/code/01-ex00_main.dart). Всё написано **без запуска** (в среде подготовки нет Flutter), поэтому первый шаг: достроить платформы и прогнать проверки.
 
@@ -803,6 +804,23 @@ cd ~/Projects/Mobile && EXPECTED="weather_app" CHECK=1 tools/export_module.sh 01
 ```
 
 Хотите пройти модуль сами, слоями: создайте проект заново (`flutter create --platforms=android,web weather_app`, `flutter pub add material_ui`) и набирайте слои из разборов, а готовые файлы используйте как эталон. Если `flutter analyze` или `flutter test` покажет ошибки, пришлите вывод: в разборах есть раздел «Диагностика», и туда добавится найденное.
+
+**Модуль 02: что подготовлено и как этим пользоваться.** В репозитории лежит готовый проект `mobileModule02/medium_weather_app` (код `lib/` по слоям `models/`, `services/`, `state/`, `ui/`, шесть файлов тестов в `test/`, `pubspec.yaml`, `analysis_options.yaml`), четыре разбора по слоям: [02-ex00](docs/02-ex00.md) (GPS и разрешения), [02-ex01](docs/02-ex01.md) (поиск, подсказки, геокодинг), [02-ex02](docs/02-ex02.md) (прогноз и три вкладки), [02-ex03](docs/02-ex03.md) (ошибки и повтор) и скрипт [`tools/patch_android_manifest.sh`](tools/patch_android_manifest.sh), который идемпотентно вписывает в `AndroidManifest.xml` разрешения `INTERNET` и геолокации. Как и модуль 01, всё написано **без запуска** (нет Flutter, нет доступа к pub.dev и к самим API): ответы Open-Meteo и BigDataCloud сверены по документации, но не по живым запросам. Первый шаг: достроить платформы, вписать разрешения и прогнать проверки.
+
+```bash
+cd ~/Projects/Mobile/mobileModule02/medium_weather_app
+flutter create --platforms=android,web --project-name medium_weather_app .   # не затирает существующие файлы
+git status                      # lib/, test/, pubspec.yaml, analysis_options.yaml, README.md не должны быть изменены
+cd ~/Projects/Mobile
+tools/patch_android_manifest.sh mobileModule02/medium_weather_app/android/app/src/main/AndroidManifest.xml
+cd mobileModule02/medium_weather_app
+flutter pub get && flutter analyze && flutter test
+git add -A && git commit -m "medium_weather_app: platforms and permissions"
+# выгрузка (ожидаемая папка одна):
+cd ~/Projects/Mobile && EXPECTED="medium_weather_app" CHECK=1 tools/export_module.sh 02 ~/Projects/campus-mobile-02
+```
+
+Что добавлено сверх сабжа (и почему, см. разборы): обратное геокодирование через BigDataCloud (у Open-Meteo его нет), тихий автоматический повтор при потере связи (сабж требует, чтобы сообщение «осталось, пока не восстановится соединение», а для этого приложение должно само заметить восстановление), запасной вариант «название = координаты», если обратный геокодер не ответил. Запускать модуль нужно на **телефоне или эмуляторе с заданной точкой** (в Chrome геолокация десктопа ненадёжна); после правки манифеста или добавления плагина нужен полный перезапуск, а не hot reload.
 
 **Карточки модулей 01–05 на Intra (снимок от 25.11.2026).** Во всех пяти: одиночный проект (Solo), оценка «около 7 часов», максимальная длительность 1 день, 2 дня на проверку после завершения. Навыки: Object-oriented programming, Adaptation & creativity, Technology integration. Каждый модуль открывается только после **валидации предыдущего** (цепочка 0 → 1 → 2 → 3 → 4 → 5).
 
