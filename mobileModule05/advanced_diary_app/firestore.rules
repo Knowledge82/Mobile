@@ -1,0 +1,41 @@
+// Правила доступа Cloud Firestore для diary_app и advanced_diary_app (модули 04 и 05: база и правила общие).
+//
+// Куда вставить: консоль Firebase -> Firestore Database -> вкладка Rules ->
+// вставить файл целиком -> Publish. Или из командной строки (нужен Firebase CLI):
+// firebase deploy --only firestore:rules
+//
+// Идея: пользователь видит и меняет ТОЛЬКО свои записи, лежащие по пути
+// users/{его uid}/entries/{id}. Всё остальное запрещено по умолчанию.
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    match /users/{userId}/entries/{entryId} {
+
+      // Читать (получить одну запись или список) и удалять: только владельцу.
+      allow read, delete: if request.auth != null && request.auth.uid == userId;
+
+      // Создать: владельцу и только запись правильной формы.
+      allow create: if request.auth != null
+        && request.auth.uid == userId
+        // ровно эти поля, без лишних и без пропущенных
+        && request.resource.data.keys().hasOnly(['email', 'date', 'title', 'feeling', 'content'])
+        && request.resource.data.keys().hasAll(['email', 'date', 'title', 'feeling', 'content'])
+        // типы и пределы (те же числа, что в lib/config.dart)
+        && request.resource.data.email is string
+        && request.resource.data.date is timestamp
+        && request.resource.data.title is string
+        && request.resource.data.title.size() > 0
+        && request.resource.data.title.size() <= 100
+        && request.resource.data.feeling in ['verySatisfied', 'satisfied', 'neutral', 'dissatisfied', 'veryDissatisfied']
+        && request.resource.data.content is string
+        && request.resource.data.content.size() > 0
+        && request.resource.data.content.size() <= 5000;
+
+      // Править существующие записи сабж не требует: запрещаем (профиль модуля 05
+      // по сабжу тоже только читает и удаляет). Понадобится правка, правило меняют осознанно.
+      allow update: if false;
+    }
+  }
+}
