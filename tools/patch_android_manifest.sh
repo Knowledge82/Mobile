@@ -13,6 +13,10 @@
 #   ACCESS_COARSE_LOCATION — примерное местоположение
 #   ACCESS_FINE_LOCATION   — точное (GPS)
 #
+# Нужны только некоторые? Переменная PERMISSIONS (имена через запятую):
+#   PERMISSIONS=INTERNET tools/patch_android_manifest.sh <манифест>
+# (так делаем для diary_app из модуля 04: геолокация ему не нужна).
+#
 # Строки вставляются сразу после открывающего тега <manifest ...>.
 # Перед первой правкой рядом кладётся копия AndroidManifest.xml.bak (в .gitignore).
 # =============================================================================
@@ -27,17 +31,22 @@ grep -q '<manifest' "$FILE" || die "Это не AndroidManifest.xml: $FILE"
 
 [ -f "$FILE.bak" ] || cp "$FILE" "$FILE.bak"
 
-python3 - "$FILE" <<'PY'
+PERMISSIONS="${PERMISSIONS:-}" python3 - "$FILE" <<'PY'
 import re, sys
 
 path = sys.argv[1]
 text = open(path, encoding='utf-8').read()
+
+import os
 
 wanted = [
     'android.permission.INTERNET',
     'android.permission.ACCESS_COARSE_LOCATION',
     'android.permission.ACCESS_FINE_LOCATION',
 ]
+only = [p.strip() for p in os.environ.get('PERMISSIONS', '').split(',') if p.strip()]
+if only:
+    wanted = ['android.permission.' + p.replace('android.permission.', '') for p in only]
 missing = [p for p in wanted if p not in text]
 if not missing:
     print('Всё уже на месте, ничего не меняю.')

@@ -77,7 +77,9 @@ Mobile/                          ← личный репозиторий (GitHub
 │   ├── export_module.sh         ← выгрузка модуля в репозиторий кампуса
 │   ├── patch_android_manifest.sh ← разрешения INTERNET и геолокации в AndroidManifest.xml
 │   ├── check_flutter_version.sh  ← сверка установленного Flutter/Dart с ожидаемой версией
-│   └── make_background.py        ← генератор фона модуля 03 (картинка рисуется кодом, без лицензии)
+│   ├── make_background.py        ← генератор фона модуля 03 (картинка рисуется кодом, без лицензии)
+│   ├── make_leaves.py            ← генератор листвы для первого экрана модуля 04
+│   └── set_android_min_sdk.sh    ← поднимает minSdk Android до 24 (нужно плагинам Firebase)
 ├── docs/                        ← конспекты по упражнениям
 │   ├── index.md
 │   ├── _template.md
@@ -788,10 +790,10 @@ flutter --version
 | 01 | `mobileModule01` | `weather_app` (один проект на ex00 и ex01) | код и разборы подготовлены заранее, **не запускались**: нужен первый прогон | [ex00](docs/01-ex00.md), [ex01](docs/01-ex01.md) |
 | 02 | `mobileModule02` | `medium_weather_app` (один проект на ex00–ex03) | код и разборы подготовлены заранее, **не запускались**: нужен первый прогон | [ex00](docs/02-ex00.md), [ex01](docs/02-ex01.md), [ex02](docs/02-ex02.md), [ex03](docs/02-ex03.md) |
 | 03 | `mobileModule03` | `advanced_weather_app` (один проект на ex00–ex04) | код и разборы подготовлены заранее, **не запускались**: нужен первый прогон и осмотр глазами | [ex00](docs/03-ex00.md), [ex01](docs/03-ex01.md), [ex02](docs/03-ex02.md), [ex03](docs/03-ex03.md), [ex04](docs/03-ex04.md) |
-| 04 | `mobileModule04` | `diary_app` | не начат | |
+| 04 | `mobileModule04` | `diary_app` (один проект на ex00–ex01) | код и разборы подготовлены заранее, **не запускались**: нужны настройка Firebase и первый прогон | [ex00](docs/04-ex00.md), [ex01](docs/04-ex01.md) |
 | 05 | `mobileModule05` | `advanced_diary_app` | не начат | |
 
-Имена папок сдачи и проектов для модулей 01–05 взяты **из сабжей** (подробности ниже, в разделе «Модули 01–05»). Для упражнений модулей 04–05 файлы разборов (`docs/NN-exMM.md`) создаются, когда мы начинаем модуль. Для модулей 01, 02 и 03 разборы и код подготовлены заранее (см. ниже).
+Имена папок сдачи и проектов для модулей 01–05 взяты **из сабжей** (подробности ниже, в разделе «Модули 01–05»). Для упражнений модуля 05 файлы разборов (`docs/NN-exMM.md`) создаются, когда мы начинаем модуль. Для модулей 01, 02, 03 и 04 разборы и код подготовлены заранее (см. ниже).
 
 **Модуль 01: что подготовлено и как этим пользоваться.** В репозитории лежат готовый проект `mobileModule01/weather_app` (код `lib/`, тесты, `pubspec.yaml`, `analysis_options.yaml`), разборы по слоям [01-ex00](docs/01-ex00.md) (нижняя панель вкладок) и [01-ex01](docs/01-ex01.md) (поле поиска и кнопка геолокации) и снимок кода этапа ex00 в [docs/code/01-ex00_main.dart](docs/code/01-ex00_main.dart). Всё написано **без запуска** (в среде подготовки нет Flutter), поэтому первый шаг: достроить платформы и прогнать проверки.
 
@@ -841,6 +843,25 @@ cd ~/Projects/Mobile && EXPECTED="advanced_weather_app" CHECK=1 tools/export_mod
 ```
 
 Если вы хотите **начать модуль 03 сами** из своего модуля 02 (как требует сабж: копия проекта в новую папку), в [03-ex00, раздел 1.7](docs/03-ex00.md#17-как-начать-модуль-копирование-проекта) расписано, как скопировать `lib/`, `test/` и конфигурацию **без** `android/` и `web/` (в них зашито имя проекта) и достроить платформы заново. Если нужно заменить фон на свою картинку, оставьте то же имя файла (или поправьте `backgroundAsset` и `pubspec.yaml`) и проверьте лицензию.
+
+**Модуль 04: что подготовлено и как этим пользоваться.** В репозитории лежит готовый проект `mobileModule04/diary_app` (по сабжу новый проект и **новый репозиторий кампуса `mobileModule04`**, поэтому выгрузка пойдёт в свежий клон). Приложение: страница приветствия с кнопкой Login, страница входа (Google или GitHub через Firebase Authentication), профиль со списком записей и созданием, чтением и удалением (Cloud Firestore, список обновляется сам). Устройство кода: экраны знают только интерфейсы `AuthService` и `DiaryRepository`, настоящие сервисы создаются в `main.dart`, в тестах стоят подделки; записи лежат по пути `users/{uid}/entries/{id}`; `firestore.rules` не пускает чужие записи; без сети запись видна сразу, а через 8 секунд пользователь получает честное «сохранено на устройстве». Два разбора: [04-ex00](docs/04-ex00.md) (вход, OAuth простыми словами, **пошаговая настройка Firebase, GitHub OAuth App, SHA-1, экран согласия Google**) и [04-ex01](docs/04-ex01.md) (модель данных, `snapshots()`, правила безопасности, работа без сети, **аккаунт для проверяющего**). Как и раньше, всё написано **без запуска**. Здесь это значит ещё и то, что **облачную настройку и вход никто не проверял**: сначала облако, потом код (раздел 1.6 разбора ex00).
+
+```bash
+cd ~/Projects/Mobile/mobileModule04/diary_app
+flutter create --platforms=android,web --project-name diary_app .   # не затирает существующие файлы
+cd ~/Projects/Mobile
+PERMISSIONS=INTERNET tools/patch_android_manifest.sh mobileModule04/diary_app/android/app/src/main/AndroidManifest.xml
+tools/set_android_min_sdk.sh mobileModule04/diary_app/android/app/build.gradle.kts   # minSdk 24
+cd mobileModule04/diary_app
+flutterfire configure           # после настройки проекта Firebase; заменяет lib/firebase_options.dart
+flutter pub get && flutter analyze && flutter test
+flutter run -d <устройство>
+git add -A && git commit -m "diary_app: platforms, firebase options"
+# выгрузка в НОВЫЙ репозиторий кампуса:
+cd ~/Projects/Mobile && EXPECTED="diary_app" CHECK=1 tools/export_module.sh 04 ~/Projects/campus-mobile-04
+```
+
+Два замечания. **(1)** `lib/firebase_options.dart` после `flutterfire configure` нужно **закоммитить настоящим**: в нём нет секретов, а без него проверяющий увидит экран «Firebase is not configured». Секрет GitHub OAuth живёт только в консоли Firebase. **(2)** `flutterfire configure` требует Firebase CLI; если на кампусе его не поставить без прав, выполните команду **дома** и закоммитьте результат (см. [04-ex00, раздел 6.1](docs/04-ex00.md#61-что-понадобится)). Отпечатки SHA-1 debug-ключа добавляйте для **каждой** машины сборки (дом и кампус отличаются).
 
 **Карточки модулей 01–05 на Intra (снимок от 25.11.2026).** Во всех пяти: одиночный проект (Solo), оценка «около 7 часов», максимальная длительность 1 день, 2 дня на проверку после завершения. Навыки: Object-oriented programming, Adaptation & creativity, Technology integration. Каждый модуль открывается только после **валидации предыдущего** (цепочка 0 → 1 → 2 → 3 → 4 → 5).
 
