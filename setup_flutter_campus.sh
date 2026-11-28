@@ -9,7 +9,7 @@
 # недостающее. Запускай заново на каждой новой машине, где goinfre пустой.
 #
 # Переменные, которые можно переопределить перед запуском:
-#   FLUTTER_VERSION=3.50.0 | latest   версия Flutter (по умолчанию — как в сабже)
+#   FLUTTER_VERSION=3.50.1 | latest   версия Flutter (по умолчанию — как в сабже)
 #   JDK_MAJOR=17                      мажорная версия JDK, если системной нет
 #   SDK_BASE=~/sgoinfre               где жить SDK (Flutter, Android, JDK)
 #   CACHE_BASE=~/goinfre              где жить кэшам (Gradle, pub)
@@ -21,7 +21,7 @@ set -euo pipefail
 # Реальный путь этого скрипта (попадёт в напоминалку внутри ~/.flutter_env.sh)
 SCRIPT_PATH="$(readlink -f "${BASH_SOURCE[0]}")"
 
-FLUTTER_VERSION="${FLUTTER_VERSION:-3.50.0}"
+FLUTTER_VERSION="${FLUTTER_VERSION:-3.50.1}"
 JDK_MAJOR="${JDK_MAJOR:-17}"
 FALLBACK_CMDLINE_ZIP="commandlinetools-linux-13114758_latest.zip"
 ENV_FILE="$HOME/.flutter_env.sh"
