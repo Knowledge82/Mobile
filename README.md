@@ -75,7 +75,8 @@ Mobile/                          ← личный репозиторий (GitHub
 ├── .gitignore
 ├── tools/
 │   ├── export_module.sh         ← выгрузка модуля в репозиторий кампуса
-│   └── patch_android_manifest.sh ← разрешения INTERNET и геолокации в AndroidManifest.xml
+│   ├── patch_android_manifest.sh ← разрешения INTERNET и геолокации в AndroidManifest.xml
+│   └── check_flutter_version.sh  ← сверка установленного Flutter/Dart с ожидаемой версией
 ├── docs/                        ← конспекты по упражнениям
 │   ├── index.md
 │   ├── _template.md
@@ -724,7 +725,7 @@ git push
 
 Коммиты можно делать частые и сырые (WIP): это ваш личный репозиторий. Выгрузка в репозиторий кампуса ([8.5](#85-выгрузка-модуля-в-репозиторий-кампуса)) берёт состояние на момент выгрузки, история ей не важна.
 
-**Версия Flutter должна совпадать на всех машинах.** На кампусе по скрипту ставится 3.50.1 (Dart 3.14); на машине, где 25.11.2026 прошёл `flutter upgrade`, сейчас 3.50.1 (Dart 3.14.0, см. [разбор случая](#разбор-случая-зависание-startup-lock-после-flutter-upgrade-на-sgoinfre)). Сверяйте `flutter --version` дома и на кампусе. Проект, созданный `flutter create`, записывает в `pubspec.yaml` ограничение на версию Dart (`environment: sdk: ^3.x.y`). Если дома Flutter старше, `flutter pub get` откажется работать (`version solving failed`), а `material_ui` может потребовать свежий Flutter. Проверка дома:
+**Версия Flutter должна совпадать на всех машинах.** На кампусе по скрипту ставится 3.50.1 (Dart 3.14); на машине, где 25.11.2026 прошёл `flutter upgrade`, сейчас 3.50.1 (Dart 3.14.0, см. [разбор случая](#разбор-случая-зависание-startup-lock-после-flutter-upgrade-на-sgoinfre)). Сверяйте `flutter --version` дома и на кампусе, или запустите [`tools/check_flutter_version.sh`](tools/check_flutter_version.sh): он берёт ожидаемую версию из `setup_flutter_campus.sh`, читает установленную из файлов SDK (так что не зависает на «startup lock») и заодно проверяет, что Dart не старше требований всех `pubspec.yaml` в репозитории (код выхода 0 = всё совпало, 1 = расхождение, 2 = не удалось определить). Проект, созданный `flutter create`, записывает в `pubspec.yaml` ограничение на версию Dart (`environment: sdk: ^3.x.y`). Если дома Flutter старше, `flutter pub get` откажется работать (`version solving failed`), а `material_ui` может потребовать свежий Flutter. Проверка дома:
 
 ```bash
 flutter --version
