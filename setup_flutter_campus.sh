@@ -9,7 +9,7 @@
 # недостающее. Запускай заново на каждой новой машине, где goinfre пустой.
 #
 # Переменные, которые можно переопределить перед запуском:
-#   FLUTTER_VERSION=3.50.1 | latest   версия Flutter (по умолчанию — как в сабже)
+#   FLUTTER_VERSION=3.50.1 | latest   версия Flutter (по умолчанию 3.50.1: та же, что на моих машинах)
 #   JDK_MAJOR=17                      мажорная версия JDK, если системной нет
 #   SDK_BASE=~/sgoinfre               где жить SDK (Flutter, Android, JDK)
 #   CACHE_BASE=~/goinfre              где жить кэшам (Gradle, pub)
