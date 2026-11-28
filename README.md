@@ -76,7 +76,8 @@ Mobile/                          ← личный репозиторий (GitHub
 ├── tools/
 │   ├── export_module.sh         ← выгрузка модуля в репозиторий кампуса
 │   ├── patch_android_manifest.sh ← разрешения INTERNET и геолокации в AndroidManifest.xml
-│   └── check_flutter_version.sh  ← сверка установленного Flutter/Dart с ожидаемой версией
+│   ├── check_flutter_version.sh  ← сверка установленного Flutter/Dart с ожидаемой версией
+│   └── make_background.py        ← генератор фона модуля 03 (картинка рисуется кодом, без лицензии)
 ├── docs/                        ← конспекты по упражнениям
 │   ├── index.md
 │   ├── _template.md
@@ -786,11 +787,11 @@ flutter --version
 | 00 | `mobileModule00` | `ex00`, `ex01`, `ex02`, `calculator_app` | ex00 и ex01 в репозитории, ex02 в работе | [ex00](docs/00-ex00.md), [ex01](docs/00-ex01.md), [ex02](docs/00-ex02.md), [ex03](docs/00-ex03.md) |
 | 01 | `mobileModule01` | `weather_app` (один проект на ex00 и ex01) | код и разборы подготовлены заранее, **не запускались**: нужен первый прогон | [ex00](docs/01-ex00.md), [ex01](docs/01-ex01.md) |
 | 02 | `mobileModule02` | `medium_weather_app` (один проект на ex00–ex03) | код и разборы подготовлены заранее, **не запускались**: нужен первый прогон | [ex00](docs/02-ex00.md), [ex01](docs/02-ex01.md), [ex02](docs/02-ex02.md), [ex03](docs/02-ex03.md) |
-| 03 | `mobileModule03` | `advanced_weather_app` | не начат | |
+| 03 | `mobileModule03` | `advanced_weather_app` (один проект на ex00–ex04) | код и разборы подготовлены заранее, **не запускались**: нужен первый прогон и осмотр глазами | [ex00](docs/03-ex00.md), [ex01](docs/03-ex01.md), [ex02](docs/03-ex02.md), [ex03](docs/03-ex03.md), [ex04](docs/03-ex04.md) |
 | 04 | `mobileModule04` | `diary_app` | не начат | |
 | 05 | `mobileModule05` | `advanced_diary_app` | не начат | |
 
-Имена папок сдачи и проектов для модулей 01–05 взяты **из сабжей** (подробности ниже, в разделе «Модули 01–05»). Для упражнений модулей 03–05 файлы разборов (`docs/NN-exMM.md`) создаются, когда мы начинаем модуль. Для модулей 01 и 02 разборы и код подготовлены заранее (см. ниже).
+Имена папок сдачи и проектов для модулей 01–05 взяты **из сабжей** (подробности ниже, в разделе «Модули 01–05»). Для упражнений модулей 04–05 файлы разборов (`docs/NN-exMM.md`) создаются, когда мы начинаем модуль. Для модулей 01, 02 и 03 разборы и код подготовлены заранее (см. ниже).
 
 **Модуль 01: что подготовлено и как этим пользоваться.** В репозитории лежат готовый проект `mobileModule01/weather_app` (код `lib/`, тесты, `pubspec.yaml`, `analysis_options.yaml`), разборы по слоям [01-ex00](docs/01-ex00.md) (нижняя панель вкладок) и [01-ex01](docs/01-ex01.md) (поле поиска и кнопка геолокации) и снимок кода этапа ex00 в [docs/code/01-ex00_main.dart](docs/code/01-ex00_main.dart). Всё написано **без запуска** (в среде подготовки нет Flutter), поэтому первый шаг: достроить платформы и прогнать проверки.
 
@@ -822,6 +823,24 @@ cd ~/Projects/Mobile && EXPECTED="medium_weather_app" CHECK=1 tools/export_modul
 ```
 
 Что добавлено сверх сабжа (и почему, см. разборы): обратное геокодирование через BigDataCloud (у Open-Meteo его нет), тихий автоматический повтор при потере связи (сабж требует, чтобы сообщение «осталось, пока не восстановится соединение», а для этого приложение должно само заметить восстановление), запасной вариант «название = координаты», если обратный геокодер не ответил. Запускать модуль нужно на **телефоне или эмуляторе с заданной точкой** (в Chrome геолокация десктопа ненадёжна); после правки манифеста или добавления плагина нужен полный перезапуск, а не hot reload.
+
+**Модуль 03: что подготовлено и как этим пользоваться.** В репозитории лежит готовый проект `mobileModule03/advanced_weather_app`: это проект модуля 02 с новым оформлением (требование сабжа «Design»: логика не меняется, меняется вид). Новое: `lib/config.dart` (константа «не больше 5 подсказок»), `lib/ui/` (`app_background`, `glass_card`, `weather_icon`, `line_chart` с `chart_math`, `chart_list_page`, обновлённые `search_app_bar`, `suggestions_list`, `current_view`, `today_view`, `weekly_view`), ассет `assets/images/background.jpg` (его рисует [`tools/make_background.py`](tools/make_background.py), поэтому у картинки нет автора и лицензии), поле `is_day` в ответе прогноза (ночью вместо солнца луна) и новые тесты (`chart_math_test`, `line_chart_test`, `weather_icon_test`, `design_test`). Пять разборов: [03-ex00](docs/03-ex00.md) (строка поиска и подсказки, а также как начать модуль), [03-ex01](docs/03-ex01.md) (фон), [03-ex02](docs/03-ex02.md) (вкладка Currently), [03-ex03](docs/03-ex03.md) (график и список Today, свой `CustomPainter`), [03-ex04](docs/03-ex04.md) (две кривые Weekly и сверка с сабжем). Как и раньше, всё написано **без запуска** (нет Flutter и нет доступа к pub.dev). Здесь это значит ещё и то, что **внешний вид никто не видел**: тесты проверяют наличие, размеры и прокрутку, а красоту и читаемость надо оценить глазами на телефоне (чек-листы в разборах, раздел 6).
+
+```bash
+cd ~/Projects/Mobile/mobileModule03/advanced_weather_app
+flutter create --platforms=android,web --project-name advanced_weather_app .   # не затирает существующие файлы
+git status                      # lib/, test/, assets/, pubspec.yaml, analysis_options.yaml, README.md не должны быть изменены
+cd ~/Projects/Mobile
+tools/patch_android_manifest.sh mobileModule03/advanced_weather_app/android/app/src/main/AndroidManifest.xml
+cd mobileModule03/advanced_weather_app
+flutter pub get && flutter analyze && flutter test
+flutter run -d <устройство>     # и посмотреть на все пять упражнений глазами
+git add -A && git commit -m "advanced_weather_app: platforms and permissions"
+# выгрузка (ожидаемая папка одна):
+cd ~/Projects/Mobile && EXPECTED="advanced_weather_app" CHECK=1 tools/export_module.sh 03 ~/Projects/campus-mobile-03
+```
+
+Если вы хотите **начать модуль 03 сами** из своего модуля 02 (как требует сабж: копия проекта в новую папку), в [03-ex00, раздел 1.7](docs/03-ex00.md#17-как-начать-модуль-копирование-проекта) расписано, как скопировать `lib/`, `test/` и конфигурацию **без** `android/` и `web/` (в них зашито имя проекта) и достроить платформы заново. Если нужно заменить фон на свою картинку, оставьте то же имя файла (или поправьте `backgroundAsset` и `pubspec.yaml`) и проверьте лицензию.
 
 **Карточки модулей 01–05 на Intra (снимок от 25.11.2026).** Во всех пяти: одиночный проект (Solo), оценка «около 7 часов», максимальная длительность 1 день, 2 дня на проверку после завершения. Навыки: Object-oriented programming, Adaptation & creativity, Technology integration. Каждый модуль открывается только после **валидации предыдущего** (цепочка 0 → 1 → 2 → 3 → 4 → 5).
 
